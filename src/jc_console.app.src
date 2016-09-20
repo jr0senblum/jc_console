@@ -1,0 +1,13 @@
+{application, jc_console,
+ [
+  {description, "Web front-end console to jcache"},
+  {vsn, "1.0.0"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  cowboy
+                 ]},
+  {mod, { jc_console_app, []}},
+  {env, []}
+ ]}.
