@@ -20,8 +20,8 @@
 % RESTful call-backs.
 -export([allowed_methods/2,
          content_types_provided/2,
+         resource_exists/2,
          map_to_json/2]).
-
 
 
 %%% ============================================================================
@@ -57,25 +57,21 @@ content_types_provided(Req, State) ->
      ], Req, State}.
 
 
+resource_exists(Req, _State) ->
+    {Map, Req2} = cowboy_req:binding(map, Req),
+    try binary_to_existing_atom(Map, utf8) of
+        Atom  ->
+            {true, Req2, Atom}
+    catch
+        _:_ ->
+            {false, Req2, {}}
+    end.
+
 % Need the map type from the url so we now how to convert the binding to the
 % actual jcache map term. Then use that to get the map_size information.
-map_to_json(Req, State) ->
-    {Type, Req2} = cowboy_req:binding(type, Req),
-    {Map, Req3} = cowboy_req:binding(map, Req2),
-    RealMap = decode(Type, Map),
-    Body = jsonx:encode(to_prop_list(jc:map_size(RealMap))),
-    {Body, Req3, State}.
-
-
-% Convert a Map binary to the correct jc term using the type to know what to do.
-decode(<<"a">>, Map) ->
-    binary_to_existing_atom(Map, utf8);
-decode(<<"b">>, Map) ->
-    Map;
-decode(<<"s">>, Map) ->
-    binary_to_list(Map);
-decode(<<"i">>, Map) ->
-    binary_to_integer(Map).
+map_to_json(Req, Map) ->
+    Body = jsonx:encode(to_prop_list(jc:map_size(Map))),
+    {Body, Req, {}}.
 
 to_prop_list({records, R}) ->
     [{records, R}].

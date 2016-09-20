@@ -18,7 +18,7 @@ start(_StartType, _StartArgs) ->
             application:start(cowboy),
             Dispatch = cowboy_router:compile([
 		{'_', [{"/summary", summary_handler, []},
-                       {"/map/:type/:map", map_handler, []}]}
+                       {"/map/:map", map_handler, []}]}
                                              ]),
             {ok, _} = cowboy:start_http(http, 10, [{port, Port}], 
                                         [{env, [{dispatch, Dispatch}]}]),
