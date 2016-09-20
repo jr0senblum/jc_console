@@ -17,7 +17,7 @@
 | [npm Scripts](https://docs.npmjs.com/misc/scripts)| Glues all this together in a handy automated build. | [Pluralsight course](https://www.pluralsight.com/courses/npm-build-tool-introduction), [Why not Gulp?](https://medium.com/@housecor/why-i-left-gulp-and-grunt-for-npm-scripts-3d6853dd22b8#.vtaziro8n)  |
 
 ## Get Started
-1. **Initial Machine Setup**. First time running the app? Check out the [Workspace Setup Guide](https://confluence.dev.carelogistics.com/confluence/pages/viewpage.action?pageId=26018784)
+1. **Initial Machine Setup**. TBD
 2. **Install Node packages**. `npm install`
 3. **Run the app**. `npm start -s`
 This will run the automated build process, start up a webserver, and open the application in your default browser. When doing development, you'll want to keep the command line open at all times so that your code is rebuilt and tests run automatically every time you hit save. Note: The -s flag is optional. It enables silent mode which suppresses unnecessary messages during the build.
