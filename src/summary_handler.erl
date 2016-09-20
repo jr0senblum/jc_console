@@ -66,7 +66,8 @@ content_types_provided(Req, State) ->
 summary_to_json(Req, State) ->
     Host = construct_host(Req),
     PLists = 
-        to_prop_list(jc:cache_size(), Host) 
+        to_prop_list(jc:up(), Host)
+        ++ to_prop_list(jc:cache_size(), Host) 
         ++ to_prop_list(jc:cache_nodes(), Host)
         ++ to_prop_list(jc:maps(), Host),
     Body = jsonx:encode(PLists),
@@ -81,6 +82,11 @@ to_prop_list({nodes, {active, Up}, {configured, Configured}}, _Host) ->
 to_prop_list({size, TableInfo}, Host) ->
     F = fun(T, Acc) -> [to_prop_list(T, Host) | Acc]  end,
     [{tables, lists:foldl(F, [], TableInfo)}];
+
+to_prop_list({uptime,[{up_at, Up},{now, Now},{up_time, {D,{H,M,S}}}]}, _) ->
+    [{up_time, [{started, list_to_binary(Up)},
+               {now, list_to_binary(Now)},
+                {up, [{days, D}, {hours, H}, {minutes, M}, {seconds, S}]}]}];
     
 to_prop_list({Table, {records, Rs}, {bytes, Bs}}, _Jost) ->
     [{table_name, Table}, {record_count, Rs}, {byte_count, Bs}];
