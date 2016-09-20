@@ -12,7 +12,7 @@
 start(_StartType, _StartArgs) ->
     case application:get_env(jc_console, port, false) of
         false ->
-            lager:warning("~p: No port configured for admin"),
+            lager:warning("~p: no port configured for admin", [?MODULE]),
             {error, bad_configuration};
         Port ->
             application:start(cowboy),
