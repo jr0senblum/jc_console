@@ -14,7 +14,7 @@ rel/example_project
 
 # UI Dependency directory
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
-ui/node_modules
+node_modules
 
 #ui dist folder
 ui/dist
