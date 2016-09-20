@@ -8,3 +8,16 @@ ebin
 rel/example_project
 .concrete/DEV_MODE
 .rebar
+
+#OS X stuff to ignore
+.DS_Store
+
+# UI Dependency directory
+# https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
+ui/node_modules
+
+#ui dist folder
+ui/dist
+
+#JetBrains tools file
+.idea
