@@ -85,7 +85,7 @@ to_prop_list({size, TableInfo}, Host) ->
 
 to_prop_list({uptime,[{up_at, Up},{now, Now},{up_time, {D,{H,M,S}}}]}, _) ->
     [{up_time, [{started, list_to_binary(Up)},
-               {now, list_to_binary(Now)},
+                {now, list_to_binary(Now)},
                 {up, [{days, D}, {hours, H}, {minutes, M}, {seconds, S}]}]}];
     
 to_prop_list({Table, {records, Rs}, {bytes, Bs}}, _Jost) ->
@@ -93,7 +93,9 @@ to_prop_list({Table, {records, Rs}, {bytes, Bs}}, _Jost) ->
 
 to_prop_list(Maps, Host) when is_list(Maps)->
     F = fun(M, Acc) ->
-                [[{cache, M}, {ref, reference(Host, M)}] | Acc] 
+                [[{cache, M}, 
+                  {ref, reference(Host, M)},
+                  {sse, events(Host, M)}] | Acc] 
         end,
     [{cache_lines, lists:foldl(F, [], Maps)}].
 
@@ -102,6 +104,11 @@ to_prop_list(Maps, Host) when is_list(Maps)->
 reference(HostPort, MapName) ->
     B = atom_to_binary(MapName, utf8),
     <<HostPort/binary, "/map/", B/binary>>.
+
+% Construct the sse reference.
+events(HostPort, MapName) ->
+    B = atom_to_binary(MapName, utf8),
+    <<HostPort/binary, "/eventsource/map/", B/binary>>.
 
 
 % Construct the host string used to construct the reference where a

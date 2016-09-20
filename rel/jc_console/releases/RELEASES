@@ -13,6 +13,8 @@
                    "/Users/jrosenblum/src/jc_console/rel/jc_console/lib/cowlib-1.0.0"},
            {cowboy,"1.0.4",
                    "/Users/jrosenblum/src/jc_console/rel/jc_console/lib/cowboy-1.0.4"},
+           {lasse,"1.0.1",
+                  "/Users/jrosenblum/src/jc_console/rel/jc_console/lib/lasse-1.0.1"},
            {jc_console,"1.0.0",
                        "/Users/jrosenblum/src/jc_console/rel/jc_console/lib/jc_console-1.0.0"},
            {asn1,"4.0",

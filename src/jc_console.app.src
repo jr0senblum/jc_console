@@ -6,7 +6,8 @@
   {applications, [
                   kernel,
                   stdlib,
-                  cowboy
+                  cowboy,
+                  lasse
                  ]},
   {mod, { jc_console_app, []}},
   {env, []}

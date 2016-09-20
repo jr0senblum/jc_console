@@ -1,4 +1,4 @@
-%% rel generated at {2016,9,20} {9,1,41}
+%% rel generated at {2016,9,20} {15,49,36}
 {release,{"start_clean",[]},
          {erts,"7.1"},
          [{kernel,"4.1"},
@@ -16,6 +16,7 @@
           {goldrush,"0.1.8",load},
           {hipe,"3.13",load},
           {inets,"6.0.1",load},
+          {lasse,"1.0.1",load},
           {jc_console,"1.0.0",load},
           {jsonx,"3.0",load},
           {lager,"3.2.1",load},

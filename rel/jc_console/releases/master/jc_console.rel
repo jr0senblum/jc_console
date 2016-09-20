@@ -1,4 +1,4 @@
-%% rel generated at {2016,9,20} {9,1,41}
+%% rel generated at {2016,9,20} {15,49,36}
 {release,{"jc_console","master"},
          {erts,"7.1"},
          [{kernel,"4.1"},
@@ -8,6 +8,7 @@
           {crypto,"3.6.1"},
           {cowlib,"1.0.0"},
           {cowboy,"1.0.4"},
+          {lasse,"1.0.1"},
           {jc_console,"1.0.0"},
           {asn1,"4.0",load},
           {common_test,"1.11",load},
