@@ -62,14 +62,13 @@ content_types_provided(Req, State) ->
 % Construct the JSON which represents the jcache summary information:
 % cache tables and thier sizes
 % configured and up nodes
-% cache-line names and URLs for more infomration.
+% cache-line names, references for SSEs and more infomration.
 summary_to_json(Req, State) ->
     Host = construct_host(Req),
-    PLists = 
-        to_prop_list(jc:up(), Host)
-        ++ to_prop_list(jc:cache_size(), Host) 
-        ++ to_prop_list(jc:cache_nodes(), Host)
-        ++ to_prop_list(jc:maps(), Host),
+    PLists = [to_prop_list(jc:up(), Host),
+              to_prop_list(jc:cache_size(), Host),
+              to_prop_list(jc:cache_nodes(), Host),
+              to_prop_list(all_mentioned_maps(), Host)],
     Body = jsonx:encode(PLists),
     {Body, Req, State}.
 
@@ -77,18 +76,18 @@ summary_to_json(Req, State) ->
 % Construct a proplist that can be turned into JSON. Host is provided in 
 % case it is needed for certain values - like uri's.
 to_prop_list({nodes, {active, Up}, {configured, Configured}}, _Host) ->
-    [{nodes, [{configured, Configured}, {up, Up}]}];
+    {nodes, [{configured, Configured}, {up, Up}]};
 
 to_prop_list({size, TableInfo}, Host) ->
     F = fun(T, Acc) -> [to_prop_list(T, Host) | Acc]  end,
-    [{tables, lists:foldl(F, [], TableInfo)}];
+    {tables, lists:foldl(F, [], TableInfo)};
 
 to_prop_list({uptime,[{up_at, Up},{now, Now},{up_time, {D,{H,M,S}}}]}, _) ->
-    [{up_time, [{started, list_to_binary(Up)},
+    {up_time, [{started, list_to_binary(Up)},
                 {now, list_to_binary(Now)},
-                {up, [{days, D}, {hours, H}, {minutes, M}, {seconds, S}]}]}];
+                {up, [{days, D}, {hours, H}, {minutes, M}, {seconds, S}]}]};
     
-to_prop_list({Table, {records, Rs}, {bytes, Bs}}, _Jost) ->
+to_prop_list({Table, {records, Rs}, {bytes, Bs}}, _Host) ->
     [{table_name, Table}, {record_count, Rs}, {byte_count, Bs}];
 
 to_prop_list(Maps, Host) when is_list(Maps)->
@@ -97,7 +96,7 @@ to_prop_list(Maps, Host) when is_list(Maps)->
                   {ref, reference(Host, M)},
                   {sse, events(Host, M)}] | Acc] 
         end,
-    [{cache_lines, lists:foldl(F, [], Maps)}].
+    {cache_lines, lists:foldl(F, [], Maps)}.
 
 
 % Construct the reference.
@@ -116,3 +115,10 @@ events(HostPort, MapName) ->
 construct_host(Req) -> 
     {Host, _Req2} = cowboy_req:host_url(Req),
     Host.
+
+all_mentioned_maps() ->
+    Maps = lists:foldl(fun({M, _}, Acc) -> sets:add_element(M, Acc) end,
+                       sets:from_list(jc:maps()),
+                       jc_eviction_manager:get_max_ttls()), 
+    sets:to_list(Maps).
+                        

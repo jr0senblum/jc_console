@@ -70,12 +70,32 @@ resource_exists(Req, _State) ->
 % Need the map type from the url so we now how to convert the binding to the
 % actual jcache map term. Then use that to get the map_size information.
 map_to_json(Req, Map) ->
-    Body = jsonx:encode(to_prop_list(jc:map_size(Map))),
+    PList = 
+        [jc:map_size(Map),
+         max_ttl(Map),
+         sequence(Map),
+         indexes(Map)],
+    Body = jsonx:encode(PList),
     {Body, Req, {}}.
 
-to_prop_list({records, R}) ->
-    [{records, R}].
-    
-               
+max_ttl(Map) ->
+    case lists:keyfind(Map, 1, jc_eviction_manager:get_max_ttls()) of
+        {Map, Secs} ->
+            {ttl, Secs};
+        false ->
+            {ttl, false}
+    end.
 
+sequence(Map) ->
+    case jc_s:sequence(Map) of
+        {ok, not_exist} ->
+            {sequence_no, false};
+        {ok, Seq} ->
+            {sequence_no, Seq}
+    end.
 
+indexes(Map) ->
+    F = fun({{_Map, Path}, Pos}, Acc) -> 
+                [[{path, tuple_to_list(Path)}, {pos, Pos}] | Acc]
+        end,
+    {indexes, lists:foldl(F, [], jc_store:indexes(Map))}.
