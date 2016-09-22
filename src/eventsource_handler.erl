@@ -4,7 +4,7 @@
 %%% @doc SSE handler courtesy of lasse. 
 %%%
 %%% The endpoint,  "/eventsource/map/MAP", is used to stream notifications of
-%%% writes and evicts to the given MAP.
+%%% writes and evicts on the given MAP to the client.
 %%%
 %%% @version {@version}
 %%% @end
@@ -13,9 +13,11 @@
 
 -module(eventsource_handler).
 
+
 -behaviour(lasse_handler).
 
 
+% Handler call-backs.
 -export([
          init/3,
          handle_notify/2,
@@ -25,6 +27,30 @@
         ]).
 
 
+-type req()    :: cowboy_req:req().
+-type reason() :: lasse_handler:reason().
+-type state()  :: lasse_handler:state().
+-type msg()    :: lasse_handler:msg().
+-type args()   :: lasse_handler:args().
+-type result() :: lasse_handler:result().
+-type return() :: {ok, cowboy_req:req(), state()} |
+                  {shutdown, cowboy:http_status(), 
+                   cowboy:http_headers(), 
+                   iodata(), 
+                   req(), 
+                   state()}.
+
+
+
+
+
+
+%%% ============================================================================
+%%$                    http_handler required call-backs
+%%% ============================================================================
+
+
+-spec init(args(), binary()|undefined, state()) -> return().
 init(_InitArgs, _LastEventId, Req) -> 
     {Map, Req2} = cowboy_req:binding(map, Req),
     lager:debug("~p: initializing SSE for pid ~p and map ~p", 
@@ -38,12 +64,14 @@ init(_InitArgs, _LastEventId, Req) ->
     end.
 
 
-
+-spec handle_notify(msg(), state()) -> result().
 handle_notify(_Msg, State) ->
     {nosend, State}.
 
 
 % Receive map_event message, send it to the client, else ignore.
+-spec handle_info(msg(), state()) -> result().
+
 handle_info({_M, _K, delete} = Details, State) -> 
     Data = to_json(Details),
     {send, #{data => Data, id => id()}, State};
@@ -58,18 +86,26 @@ handle_info(Msg, State) ->
     {nosend, State}.
 
 
+-spec handle_error(msg(), reason(), state()) -> state().
 handle_error(_Msg, _Reason, State) ->
     State.
 
+
+-spec terminate(reason(), req(), state()) -> ok.
 terminate(_Reason, _Req, _State) ->
     ok.
+
+
+
+%%% ============================================================================
+%%%                    Helper Functions
+%%% ============================================================================
 
 
 % Generate a unique message id
 id() ->
     Id = erlang:system_time(micro_seconds),
     integer_to_binary(Id, 16).
-
 
 
 % RetrieAssumes Plist contains map, key, value where map is a binary string 

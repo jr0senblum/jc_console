@@ -19,24 +19,35 @@
 
 % RESTful call-backs.
 -export([allowed_methods/2, 
-         content_types_provided/2,
-         summary_to_json/2]).
+         content_types_provided/2]).
+
+% Callbacks used by the restful functions.
+-export([ summary_to_json/2]).
+
+
+-type transport() :: {cowboy_rest:transport_name(), cowboy_rest:protocol_name()}.
+-type value() :: cowboy_rest:value().
+-type state() :: any().
+-type req()   :: cowboy_req:req().
+-type opts()  :: cowboy_rest:opts().
 
 
 
 %%% ============================================================================
-%%$                    handler required call-backs
+%%%                    http_handler required call-backs
 %%% ============================================================================
 
-
+-spec init(transport(), req(), opts()) -> {upgrade, protocol, cowboy_rest}.
 init(_Transport, _Req, []) ->
     {upgrade, protocol, cowboy_rest}.
 
 
+-spec terminate(cowboy_rest:reason(), req(), state()) -> ok.
 terminate(_Reason, _Req, _State) ->
 	ok.
 
 
+-spec rest_init(cowboy_req:req(), opts()) -> {ok, req(), {}}.
 rest_init(Req, _Opts) ->
     {ok, Req, {}}.
 
@@ -47,31 +58,63 @@ rest_init(Req, _Opts) ->
 %%% ============================================================================
 
 
+-spec allowed_methods(req(), state()) -> {[binary()], req(), state()}.
 allowed_methods(Req, State) ->
     {[<<"GET">>], Req, State}.
 
 
 % For GET, HEAD, POST, PUT, PATCH, DELETE, the resource types provided and the
 % call-back used.
+-spec content_types_provided(req(), state()) -> {value(), req(), state()}.
+
 content_types_provided(Req, State) ->
     {[
       {<<"application/json">>, summary_to_json}
      ], Req, State}.
 
 
+
+%%% ============================================================================
+%%%                    Helper Functions
+%%% ============================================================================
+
 % Construct the JSON which represents the jcache summary information:
 % cache tables and thier sizes
 % configured and up nodes
 % cache-line names, references for SSEs and more infomration.
-summary_to_json(Req, State) ->
+-spec summary_to_json(req(), state()) -> {cowboy_rest:body(), req(), state()}.
+
+summary_to_json(Req, State) -> 
     Host = construct_host(Req),
+    Sizes = node_reported_sizes(),
+
     PLists = [to_prop_list(jc:up(), Host),
-              to_prop_list(jc:cache_size(), Host),
               to_prop_list(jc:cache_nodes(), Host),
+              Sizes,
               to_prop_list(all_mentioned_maps(), Host)],
+   
     Body = jsonx:encode(PLists),
     {Body, Req, State}.
 
+
+% For each active node, get its reported cache table statistics.
+node_reported_sizes() ->
+    {per_node_sizes, lists:foldl(fun add_good_result/2, [], up_nodes())}.
+
+% Get all up nodes.
+up_nodes() ->
+    {nodes, {active, Active}, {configured, _}} = jc:cache_nodes(),
+    Active.
+
+% If the rpc to the given node works, accumulate its answer
+add_good_result(N, Acc) ->
+    case rpc:call(N, jc, cache_size, []) of
+        {size,_} = R ->
+            [{N, [to_prop_list(R, unused)]} | Acc];
+        _ ->
+            Acc
+end.
+    
 
 % Construct a proplist that can be turned into JSON. Host is provided in 
 % case it is needed for certain values - like uri's.
@@ -103,6 +146,7 @@ to_prop_list(Maps, Host) when is_list(Maps)->
 reference(HostPort, MapName) ->
     B = atom_to_binary(MapName, utf8),
     <<HostPort/binary, "/map/", B/binary>>.
+
 
 % Construct the sse reference.
 events(HostPort, MapName) ->

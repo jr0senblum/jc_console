@@ -20,43 +20,61 @@
 % RESTful call-backs.
 -export([allowed_methods/2,
          content_types_provided/2,
-         resource_exists/2,
-         map_to_json/2]).
+         resource_exists/2]).
+
+% Callbacks used by the restful functions.
+-export([map_to_json/2]).
+
+
+-type transport() :: {cowboy_rest:transport_name(), cowboy_rest:protocol_name()}.
+-type value() :: cowboy_rest:value().
+-type state() :: any().
+-type req()   :: cowboy_req:req().
+-type opts()  :: cowboy_rest:opts().
+
 
 
 %%% ============================================================================
-%%$                    handler required call-backs
+%%%                    http_handler, required call-backs
 %%% ============================================================================
 
 
+-spec init(transport(), req(), opts()) -> {upgrade, protocol, cowboy_rest}.
 init(_Transport, _Req, []) ->
     {upgrade, protocol, cowboy_rest}.
 
+
+-spec terminate(cowboy_rest:reason(), req(), state()) -> ok.
 terminate(_Reason, _Req, _State) ->
 	ok.
 
+
+-spec rest_init(cowboy_req:req(), opts()) -> {ok, req(), {}}.
 rest_init(Req, _Opts) ->
     {ok, Req, {}}.
 
 
 
 %%% ============================================================================
-%%$                    RESTful call-backs : GET
+%%%                    RESTful call-backs : GET
 %%% ============================================================================
 
-
+-spec allowed_methods(req(), state()) -> {[binary()], req(), state()}.
 allowed_methods(Req, State) ->
     {[<<"GET">>], Req, State}.
 
 
 % For GET, HEAD, POST, PUT, PATCH, DELETE, the resource types provided and the
 % call-back used.
+-spec content_types_provided(req(), state()) -> {value(), req(), state()}.
+
 content_types_provided(Req, State) ->
     {[
       {<<"application/json">>, map_to_json}
      ], Req, State}.
 
 
+-spec resource_exists(req(), state()) -> {boolean(), req(), state()}.
 resource_exists(Req, _State) ->
     {Map, Req2} = cowboy_req:binding(map, Req),
     try binary_to_existing_atom(Map, utf8) of
@@ -67,8 +85,16 @@ resource_exists(Req, _State) ->
             {false, Req2, {}}
     end.
 
-% Need the map type from the url so we now how to convert the binding to the
-% actual jcache map term. Then use that to get the map_size information.
+
+
+%%% ============================================================================
+%%%                    Helper Functions
+%%% ============================================================================
+
+
+% Construct the Json representing informationabout a given map.
+-spec map_to_json(req(), atom()) -> {cowboy_rest:body(), req(), state()}.
+                                     
 map_to_json(Req, Map) ->
     PList = 
         [jc:map_size(Map),
@@ -78,6 +104,7 @@ map_to_json(Req, Map) ->
     Body = jsonx:encode(PList),
     {Body, Req, {}}.
 
+
 max_ttl(Map) ->
     case lists:keyfind(Map, 1, jc_eviction_manager:get_max_ttls()) of
         {Map, Secs} ->
@@ -86,6 +113,7 @@ max_ttl(Map) ->
             {ttl, false}
     end.
 
+
 sequence(Map) ->
     case jc_s:sequence(Map) of
         {ok, not_exist} ->
@@ -93,6 +121,7 @@ sequence(Map) ->
         {ok, Seq} ->
             {sequence_no, Seq}
     end.
+
 
 indexes(Map) ->
     F = fun({{_Map, Path}, Pos}, Acc) -> 
