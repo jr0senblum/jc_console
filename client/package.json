@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "description": "A UI for JCache",
   "scripts": {
-    "start": "parallelshell \"npm run lint:tools\" \"npm run test:watch\" \"npm run open:src\"",
+    "start_old": "parallelshell \"npm run lint:tools\" \"npm run test:watch\" \"npm run open:src\"",
+    "start": "npm run open:src",
     "open:src": "babel-node tools/srcServer.js",
     "open:dist": "babel-node tools/distServer.js",
     "lint:tools": "eslint webpack.config.js tools",
