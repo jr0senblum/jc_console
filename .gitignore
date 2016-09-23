@@ -6,6 +6,7 @@ deps
 erl_crash.dump
 ebin
 rel/example_project
+rel/jc_console
 .concrete/DEV_MODE
 .rebar
 
