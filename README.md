@@ -8,37 +8,37 @@ that make up a running j_cache cluster.
 
 Jc_console is a dependecny of j_cache and is distributed with j_cache. Having said that,
 jc_console will not be started unless a particular j_cache node is configured to start
-jc_console(see the configuration section below).
+jc_console via its configuration file, sys.config (see the configuration section below).
 
 
-## Front-End / Back-End
+### Front-End / Back-End
 The front-end is a React / Redux appliction and is described in its own README in the client
 subdirectory. The back-end is an Erlang, OTP-compliant application and is further described in this README.
 
 
-## Server file structure
-jc_console is a standard OTP application and follows the OTP directory convention. Except that there is an additional client directory which contains the front-end React application
+### Server file structure
+jc_console is a standard OTP application and follows the OTP directory convention. Howver, there is a single exception in that there is an additional client directory which contains the front-end React application.
 
 ```
 .
 |── client           # root of the browser-based, front-end application 
 ├── deps             # jc_console application dependencies
-├── ebin             # ompiled, jc_console code
-├── rel              # Release subdirectory
-    |── files          # Template files that get instantiated and moved to the release
+├── ebin             # compiled, jc_console code
+├── rel              # release subdirectory
+    |── files          # template files that get instantiated and moved to the release
     |── jc_console     # jc_console release
 ├── src              # jc_console source code
 ```
 
 
 ### Jc_console Technologies
-| **Tech** | **Description** | **Sponsor** |
-|----------|-------|
-| [Erlang](http://www.erlang.org) | A programming language used to build massively scalable soft real-time systems with requirements on high availability. | Ericcson  / Open Source
-| [Cowboy](http://ninenines.eu/)  |   Small, fast, modular HTTP server. | Ninenines
-| [Lasse](https://github.com/inaka/lasse)|SSE handler for Cowboy. | Inaka
-| [Lagger](http://basho.com) | A logging framework for Erlang/OTP | Basho
-
+| **Tech** | **Description** | **Sponsor**|
+|----------|-------|------|
+| [Erlang](http://www.erlang.org) | A programming language used to build massively scalable soft real-time systems with requirements on high availability. | Ericcson  / Open Source |
+| [Cowboy](http://ninenines.eu/)  |   Small, fast, modular HTTP server. | Ninenines |
+| [Lasse](https://github.com/inaka/lasse)|SSE handler for Cowboy. | Inaka |
+| [Lagger](http://basho.com) | A logging framework for Erlang/OTP | Basho |
+| [Rebar](https://github.com/rebar/rebar/wiki) | Feature rich Erlang build tool | Open Source| 
 
 
 ###Build instructions
@@ -72,16 +72,16 @@ Provides JSON endpoints indicating
 
 
 ###Configuration
-* For j_cache nodes that want to offer jc_console, the j_cache sys.config file 
+For j_cache nodes that want to offer jc_console, the j_cache sys.config file 
 needs two additional lines in the jc stanza
 
-  	   ... snip ...
-    	{jc,
-          [
-           ...snip ...
-           %% To enable the web-based console, jc_console set to true.
-           {console, false},
-           {port, 8080},
-           ...snip...
-           ]
-       }
+	{jc,
+	 [
+	  ...snip ...
+	  %% To enable the web-based console, jc_console set to true.
+	  {console, false},
+	  {port, 8080},
+	  ...snip...
+	 ]
+	}
+
