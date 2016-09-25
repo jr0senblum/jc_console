@@ -10,7 +10,7 @@ function makeProxy(pathKey, url, opts) {
     opts: opts || {},
     pathKey: pathKey,
     server: httpProxy.createProxyServer({
-      target: 'http://10.6.81.152:8080'
+      target: url
     })
   };
 
@@ -26,7 +26,8 @@ function makeProxy(pathKey, url, opts) {
   return proxy;
 }
 
-var proxy = makeProxy('/api', 'http://10.6.81.152:8080', {});
+//TODO get this from a file or a command line options
+  var proxy = makeProxy('/api', 'http://10.6.81.152:9080', {});
 
 function applicationProxyMiddleware(req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -37,11 +38,11 @@ function applicationProxyMiddleware(req, res, next) {
 
   if (req.url.match(apiProxyPath)) {
 
-    let finalUrl = req.url.replace(/^\/(api\/)+/i, '/');
+    // let finalUrl = req.url.replace(/^\/(api\/)+/i, '/');
 
-    debug(chalk.white('Using Proxy'), 'for', chalk.cyan(req.url), 'as', chalk.cyan(finalUrl));
+    debug(chalk.white('Using Proxy'), 'for', chalk.cyan(req.url), 'as', chalk.cyan(req.url));
 
-    req.url = finalUrl;
+    // req.url = finalUrl;
 
     proxy.server.web(req, res);
 

@@ -5,24 +5,21 @@ import {Provider} from 'react-redux';
 
 import {BrowserRouter, Match, Miss, Link} from 'react-router';
 
-import {AppBar, Menu, MenuItem} from 'material-ui';
+import {AppBar} from 'material-ui';
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
 import {Summary} from './summary/Summary';
 
-
 import './styles/main.scss';
 
-
 const store = configureStore();
-
 
 const muiTheme = getMuiTheme({
   appBar: {
     height: 56,
-    color: '#ccc'
+    color: '#0D47A1'
   }
 });
 

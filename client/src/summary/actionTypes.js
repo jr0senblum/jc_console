@@ -1,2 +1,0 @@
-export const SUMMARY_LOADED = 'SUMMARY_LOADED';
-export const LOAD_SUMMARY   = 'LOAD_SUMMARY';

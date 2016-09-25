@@ -1,16 +1,48 @@
 import axios from 'axios';
-
-import {SUMMARY_LOADED} from './actionTypes';
+import {SUMMARY_LOADED, CACHE_LINE_LOADED, CACHE_CLEARED, RANDOM_ADDED} from './action-types';
 
 export function summary() {
   return dispatch =>
-    axios.get('api/summary')
-      .then(summary =>
+    axios.get('/api/summary')
+      .then(summary => {
+        console.log("Summary: ", summary);
         dispatch({
           type: SUMMARY_LOADED,
           payload: summary.data
+        })});
+}
+
+export function loadCacheLine(name, cacheLineURL) {
+  return dispatch =>
+    axios.get(cacheLineURL)
+      .then(data =>
+        dispatch({
+          type: CACHE_LINE_LOADED,
+          payload: {
+            name,
+            ...data.data
+          }
         }));
 }
+
+export function clearCache() {
+  return dispatch =>
+    axios.post('/api/command', {command: 'clear'},{
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }})
+      .then(data => dispatch({type: CACHE_CLEARED}));
+}
+
+export function addRandom() {
+  return dispatch =>
+    axios.post('/api/command', {command: 'random'},{
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }})
+      .then(data => dispatch({type: RANDOM_ADDED}));
+}
+
 
 
 export function mockSummary() {

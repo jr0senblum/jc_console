@@ -1,8 +1,9 @@
 import { combineReducers } from 'redux';
-import {summaries} from './summary/reducers';
+import {summaries, cacheLine} from './summary/reducers';
 
 const rootReducer = combineReducers({
-  summaries
+  summaries,
+  cacheLine
 });
 
 export default rootReducer;
