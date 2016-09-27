@@ -85,13 +85,12 @@ content_types_provided(Req, State) ->
 -spec summary_to_json(req(), state()) -> {cowboy_rest:body(), req(), state()}.
 
 summary_to_json(Req, State) -> 
-    Host = construct_host(Req),
     Sizes = node_reported_sizes(),
 
-    PLists = [to_prop_list(jc:up(), Host),
-              to_prop_list(jc:cache_nodes(), Host),
+    PLists = [to_prop_list(jc:up()),
+              to_prop_list(jc:cache_nodes()),
               Sizes,
-              to_prop_list(all_mentioned_maps(), Host)],
+              to_prop_list(all_mentioned_maps())],
    
     Body = jsonx:encode(PLists),
     {Body, Req, State}.
@@ -110,55 +109,48 @@ up_nodes() ->
 add_good_result(N, Acc) ->
     case rpc:call(N, jc, cache_size, []) of
         {size,_} = R ->
-            [{N, [to_prop_list(R, unused)]} | Acc];
+            [{N, [to_prop_list(R)]} | Acc];
         _ ->
             Acc
 end.
     
 
-% Construct a proplist that can be turned into JSON. Host is provided in 
-% case it is needed for certain values - like uri's.
-to_prop_list({nodes, {active, Up}, {configured, Configured}}, _Host) ->
+% Construct a proplist that can be turned into JSON.
+to_prop_list({nodes, {active, Up}, {configured, Configured}}) ->
     {nodes, [{configured, Configured}, {up, Up}]};
 
-to_prop_list({size, TableInfo}, Host) ->
-    F = fun(T, Acc) -> [to_prop_list(T, Host) | Acc]  end,
+to_prop_list({size, TableInfo}) ->
+    F = fun(T, Acc) -> [to_prop_list(T) | Acc]  end,
     {tables, lists:foldl(F, [], TableInfo)};
 
-to_prop_list({uptime,[{up_at, Up},{now, Now},{up_time, {D,{H,M,S}}}]}, _) ->
+to_prop_list({uptime,[{up_at, Up},{now, Now},{up_time, {D,{H,M,S}}}]}) ->
     {up_time, [{started, list_to_binary(Up)},
                 {now, list_to_binary(Now)},
                 {up, [{days, D}, {hours, H}, {minutes, M}, {seconds, S}]}]};
     
-to_prop_list({Table, {records, Rs}, {bytes, Bs}}, _Host) ->
+to_prop_list({Table, {records, Rs}, {bytes, Bs}}) ->
     [{table_name, Table}, {record_count, Rs}, {byte_count, Bs}];
 
-to_prop_list(Maps, Host) when is_list(Maps)->
+to_prop_list(Maps) when is_list(Maps)->
     F = fun(M, Acc) ->
                 [[{cache, M}, 
-                  {ref, reference(Host, M)},
-                  {sse, events(Host, M)}] | Acc] 
+                  {ref, reference(M)},
+                  {sse, events(M)}] | Acc] 
         end,
     {cache_lines, lists:foldl(F, [], Maps)}.
 
 
 % Construct the reference.
-reference(HostPort, MapName) ->
+reference(MapName) ->
     B = atom_to_binary(MapName, utf8),
-    <<HostPort/binary, "/api/map/", B/binary>>.
+    <<"/api/map/", B/binary>>.
 
 
 % Construct the sse reference.
-events(HostPort, MapName) ->
+events(MapName) ->
     B = atom_to_binary(MapName, utf8),
-    <<HostPort/binary, "/api/eventsource/map/", B/binary>>.
+    <<"/api/eventsource/map/", B/binary>>.
 
-
-% Construct the host string used to construct the reference where a
-% map can be found.
-construct_host(Req) -> 
-    {Host, _Req2} = cowboy_req:host_url(Req),
-    Host.
 
 all_mentioned_maps() ->
     Maps = lists:foldl(fun({M, _}, Acc) -> sets:add_element(M, Acc) end,

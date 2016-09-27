@@ -38,7 +38,8 @@ start(_StartType, _StartArgs) ->
         Port ->
             application:start(cowboy),
             Dispatch = cowboy_router:compile([
-		{'_', [{"/api/summary", summary_handler, []},
+		{'_', [{"/api/random", random_handler, []},
+                       {"/api/summary", summary_handler, []},
                        {"/api/map/:map", map_handler, []},
                        {"/api/eventsource/map/:map", lasse_handler, [eventsource_handler]},
                        {'_', cowboy_static, {priv_file, jc, "index.html"}}]}]),
