@@ -50,14 +50,15 @@
 %%% ============================================================================
 
 
+% Create the SSE connection and send the initial information about the map.
 -spec init(args(), binary()|undefined, state()) -> return().
 init(_InitArgs, _LastEventId, Req) -> 
     {Map, Req2} = cowboy_req:binding(map, Req),
     lager:debug("~p: initializing SSE for pid ~p and map ~p", 
 			[?MODULE, self(), Map]),
     case subscribe(Map) of
-        ok -> 
-            {ok, Req2, {}};
+        {ok, MapAsAtom}  -> 
+            {ok, Req2, [initial_event(Map)], MapAsAtom};
         _ -> 
             lager:debug("~p: not a valid map ~p", [?MODULE, Map]),
             {shutdown, 404, [], [], Req, {}}
@@ -72,13 +73,13 @@ handle_notify(_Msg, State) ->
 % Receive map_event message, send it to the client, else ignore.
 -spec handle_info(msg(), state()) -> result().
 
-handle_info({_M, _K, delete} = Details, State) -> 
-    Data = to_json(Details),
-    {send, #{data => Data, id => id()}, State};
+handle_info({_M, _K, delete} = Op, State) -> 
+    Data = to_json(Op, State),
+    {send, create_event(Data), State};
 
 handle_info({M, K, write, _V}, State) -> 
-    Data = to_json({M, K, write}),
-    {send, #{data => Data, id => id()}, State};
+    Data = to_json({M, K, write}, State),
+    {send, create_event(Data), State};
 
 handle_info(Msg, State) ->
     lager:warning("~p: unrecognized message received: ~p", 
@@ -102,46 +103,85 @@ terminate(_Reason, _Req, _State) ->
 %%% ============================================================================
 
 
+% Subscribe to jcache events for the given map.
+-spec subscribe(binary()) -> {error, badarg} | ok.
+
+subscribe(Map) ->
+    try binary_to_existing_atom(Map, utf8) of
+        MapAsAtom ->
+            jc_psub:map_subscribe(self(), MapAsAtom, any, any),
+            {ok, MapAsAtom}
+    catch 
+        _:_ -> 
+        {error, badarg}
+    end.
+
+
+% Create the iniital event used when establishing the SSE connection.
+initial_event(Map) ->
+    create_event(to_json(no_op, Map)).
+
+
+% Create the map representing the SSE event.
+create_event(Data) ->
+    #{data => Data, id => id(), event => <<"map_details">>}.
+
+
 % Generate a unique message id
 id() ->
     Id = erlang:system_time(micro_seconds),
     integer_to_binary(Id, 16).
 
 
-% RetrieAssumes Plist contains map, key, value where map is a binary string 
-% representing a string name of a map. 
--spec subscribe(binary()) -> {error, badarg} | ok.
+% Convert the operation from the subscription and the map details into JSON.
+to_json(Op, Map) ->
+    PList = 
+        lists:flatten([jc:map_size(Map),
+                       max_ttl(Map),
+                       sequence(Map),
+                       indexes(Map),
+                       operation(Op)]),
+    jsonx:encode(PList).
+    
 
-subscribe(Map) ->
-    try binary_to_existing_atom(Map, utf8) of
-        MapAsAtom ->
-            jc_psub:map_subscribe(self(), MapAsAtom, any, any)
-    catch 
-        _:_ -> 
-        {error, badarg}
+max_ttl(Map) ->
+    case lists:keyfind(Map, 1, jc_eviction_manager:get_max_ttls()) of
+        {Map, Secs} ->
+            {ttl, Secs};
+        false ->
+            {ttl, false}
     end.
 
-to_json(Details) ->
-    try to_json_h(Details) of
-        Result ->
-            Result
-    catch
-        _:_ -> 
-            E = [{error, <<"Result could not be converted into JSON">>},
-                 {id, id()}],
-            jsonx:encode(E)
+
+sequence(Map) ->
+    case jc_s:sequence(Map) of
+        {ok, not_exist} ->
+            {sequence_no, false};
+        {ok, Seq} ->
+            {sequence_no, Seq}
     end.
 
-to_json_h({Map, Key, Op}) ->    
-    M = [{opperation, atom_to_binary(Op, utf8)},
-         {map, Map},
-         {key, list_to_binary_string(Key)}],
-    jsonx:encode(M).
+
+indexes(Map) ->
+    F = fun({{_Map, Path}, Pos}, Acc) -> 
+                [[{path, tuple_to_list(Path)}, {pos, Pos}] | Acc]
+        end,
+    {indexes, lists:foldl(F, [], jc_store:indexes(Map))}.
+
+
+operation({Map, Key, Op}) ->    
+    [{opperation, atom_to_binary(Op, utf8)},
+     {map, Map},
+     {key, list_to_binary_string(Key)}];
+operation(_) ->    
+    [].
 
 
 list_to_binary_string(Item) when is_list(Item) ->
     list_to_binary(Item);
+
 list_to_binary_string(Item) -> Item.
+
 
 
 
