@@ -145,13 +145,13 @@ to_prop_list(Maps, Host) when is_list(Maps)->
 % Construct the reference.
 reference(HostPort, MapName) ->
     B = atom_to_binary(MapName, utf8),
-    <<HostPort/binary, "/map/", B/binary>>.
+    <<HostPort/binary, "/api/map/", B/binary>>.
 
 
 % Construct the sse reference.
 events(HostPort, MapName) ->
     B = atom_to_binary(MapName, utf8),
-    <<HostPort/binary, "/eventsource/map/", B/binary>>.
+    <<HostPort/binary, "/api/eventsource/map/", B/binary>>.
 
 
 % Construct the host string used to construct the reference where a

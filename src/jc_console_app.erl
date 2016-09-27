@@ -38,10 +38,10 @@ start(_StartType, _StartArgs) ->
         Port ->
             application:start(cowboy),
             Dispatch = cowboy_router:compile([
-		{'_', [{"/summary", summary_handler, []},
-                       {"/map/:map", map_handler, []},
-                       {"/eventsource/map/:map", lasse_handler, [eventsource_handler]}]}
-                                             ]),
+		{'_', [{"/api/summary", summary_handler, []},
+                       {"/api/map/:map", map_handler, []},
+                       {"/api/eventsource/map/:map", lasse_handler, [eventsource_handler]},
+                       {'_', cowboy_static, {priv_file, jc, "index.html"}}]}]),
             {ok, _} = cowboy:start_http(http, 10, [{port, Port}], 
                                         [{env, [{dispatch, Dispatch}]}]),
             lager:info("Admin service up and listening on port ~p", 
