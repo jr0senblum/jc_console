@@ -28,7 +28,7 @@ const getPlugins = function (env) {
     case productionEnvironment:
       plugins.push(new ExtractTextPlugin('styles.css'));
       plugins.push(new webpack.optimize.DedupePlugin());
-      plugins.push(new webpack.optimize.UglifyJsPlugin());
+      // plugins.push(new webpack.optimize.UglifyJsPlugin());
       break;
 
     case developmentEnvironment:
