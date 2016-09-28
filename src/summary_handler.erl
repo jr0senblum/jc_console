@@ -33,15 +33,6 @@
 
 
 
--ifdef('WIN').
--define(JSON_DECODE(X), jsone:decode(X, [{object_format, proplist}])).
--define(JSON_ENCODE(X), jsone:encode(X)).
--else.
--define(JSON_DECODE(X), jsonx:decode(X, [{format, proplist}])). 
--define(JSON_ENCODE(X), jsonx:encode(X)).
--endif.
-
-
 %%% ============================================================================
 %%%                    http_handler required call-backs
 %%% ============================================================================

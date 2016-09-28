@@ -33,15 +33,6 @@
 -type opts()  :: cowboy_rest:opts().
 
 
--ifdef('WIN').
--define(JSON_DECODE(X), jsone:decode(X, [{object_format, proplist}])).
--define(JSON_ENCODE(X), jsone:encode(X)).
--else.
--define(JSON_DECODE(X), jsonx:decode(X, [{format, proplist}])). 
--define(JSON_ENCODE(X), jsonx:encode(X)).
--endif.
-
-
 
 %%% ============================================================================
 %%%                    http_handler required call-backs
@@ -87,12 +78,11 @@ content_types_accepted(Req, State) ->
 
 
 % Parse the JSON in the body, execute the command TODO: remove random.
--spec do_command(req(), state()) -> {true | false, req(), state()}.
-
 do_command(Req, State) ->
     {ok, Data, Req2} = cowboy_req:body(Req, []),
     Result = 
-        try proplists:get_value(<<"command">>, ?JSON_DECODE(Data)) of
+        try proplists:get_value(<<"command">>, 
+                                jsonx:decode(Data, [{format, proplist}])) of
             <<"random">> -> 
                 random(),
                 true;
