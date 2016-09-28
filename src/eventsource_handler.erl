@@ -58,7 +58,7 @@ init(_InitArgs, _LastEventId, Req) ->
 			[?MODULE, self(), Map]),
     case subscribe(Map) of
         {ok, MapAsAtom}  -> 
-            {ok, Req2, [initial_event(Map)], MapAsAtom};
+            {ok, Req2, [initial_event(MapAsAtom)], MapAsAtom};
         _ -> 
             lager:debug("~p: not a valid map ~p", [?MODULE, Map]),
             {shutdown, 404, [], [], Req, {}}
