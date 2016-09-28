@@ -40,6 +40,18 @@ jc_console is a standard OTP application and follows the OTP directory conventio
 | [Lagger](http://basho.com) | A logging framework for Erlang/OTP | Basho |
 | [Rebar](https://github.com/rebar/rebar/wiki) | Feature rich Erlang build tool | Open Source| 
 
+### API
+| **Method** | **URL** | **Description** | 
+|------|---------------|-------|------|
+| POST | /api/command  | url encoded JSON body {"command":"clear"} clears the cache | 
+| GET  | /api/map/:map | Returns JSON details about the given map, :map |
+| GET  | /api/eventsource/map/:map | Establishes a SSE session regarding the given map |
+| GET  | /api/summary  | Returns JSON summary of cache health |
+| GET  | anything else | Serves up the index.html file
+
+The eventsource api produces an event at initialization and for every write or evict of the 
+selected map.
+
 
 ###Build instructions
 * Ensure that Erlang 17 or higher is installed
