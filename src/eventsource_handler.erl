@@ -141,7 +141,7 @@ to_json(Op, Map) ->
                        sequence(Map),
                        indexes(Map),
                        operation(Op)]),
-    jsonx:encode(PList).
+    jsone:encode(PList).
     
 
 max_ttl(Map) ->

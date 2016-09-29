@@ -2,7 +2,7 @@ jc_console
 ====
 
 ##Web based monitoring tool for j_cache
-jc_console provides a browser monitoring tool allowing a user to understand the basic
+jc_console provides a browser-based monitoring tool allowing a user to understand the basic
 health of j_cache as well as see certain details about the tables and cache-lines (bucekts)
 that make up a running j_cache cluster.
 
@@ -66,10 +66,11 @@ selected map.
     
 * Modify logging if desired in sys.config file
    	  
-* Generating a release should not be necessary since it jc_console will be build by j_cache as it is a dependecy of j_cache. But, if you do need to build the release - it will be located in jc_console/rel/jc_console
+* Generating a release should not be necessary since it jc_console will be built by j_cache as it is a dependecy of j_cache. 
+  But, if you do need to build the release - it will be located in jc_console/rel/jc_console
 
         [root@db01] cd rel
-		[root@db01] ../rebar generate
+	[root@db01] ../rebar generate
 
 
 

@@ -101,7 +101,7 @@ map_to_json(Req, Map) ->
          max_ttl(Map),
          sequence(Map),
          indexes(Map)],
-    Body = jsonx:encode(PList),
+    Body = jsone:encode(PList),
     {Body, Req, {}}.
 
 

@@ -1,7 +1,7 @@
 %%% ----------------------------------------------------------------------------
 %%% @author Jim Rosenblum
 %%% @copyright (C) 2011 - 2017, Jim Rosenblum
-%%% @doc This is the http, RESTFUL handler used by cowboy to provide a command
+%%% @doc This is the RESTFUL handler used by cowboy to provide a command
 %%% interface to the web-based console.
 %%% Post url encoded JSON body of {command:clear}
 %%%
@@ -78,11 +78,13 @@ content_types_accepted(Req, State) ->
 
 
 % Parse the JSON in the body, execute the command TODO: remove random.
+-spec do_command(req(), state()) -> {ok | false, req(), state()}.
+
 do_command(Req, State) ->
     {ok, Data, Req2} = cowboy_req:body(Req, []),
     Result = 
         try proplists:get_value(<<"command">>, 
-                                jsonx:decode(Data, [{format, proplist}])) of
+                                jsone:decode(Data, [{object_format, proplist}])) of
             <<"random">> -> 
                 random(),
                 true;

@@ -92,7 +92,7 @@ summary_to_json(Req, State) ->
               Sizes,
               to_prop_list(all_mentioned_maps())],
    
-    Body = jsonx:encode(PLists),
+    Body = jsone:encode(PLists),
     {Body, Req, State}.
 
 
