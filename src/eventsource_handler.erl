@@ -149,7 +149,7 @@ max_ttl(Map) ->
         {Map, Secs} ->
             {ttl, Secs};
         false ->
-            {ttl, false}
+            {ttl, 0}
     end.
 
 
