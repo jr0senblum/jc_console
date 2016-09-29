@@ -149,14 +149,14 @@ max_ttl(Map) ->
         {Map, Secs} ->
             {ttl, Secs};
         false ->
-            {ttl, 0}
+            []
     end.
 
 
 sequence(Map) ->
     case jc_s:sequence(Map) of
         {ok, not_exist} ->
-            {sequence_no, false};
+            [];
         {ok, Seq} ->
             {sequence_no, Seq}
     end.
@@ -166,7 +166,12 @@ indexes(Map) ->
     F = fun({{_Map, Path}, Pos}, Acc) -> 
                 [[{path, tuple_to_list(Path)}, {pos, Pos}] | Acc]
         end,
-    {indexes, lists:foldl(F, [], jc_store:indexes(Map))}.
+    case lists:foldl(F, [], jc_store:indexes(Map)) of
+        [] ->
+            [];
+        Indexes ->
+            {indexes, Indexes}
+    end.
 
 
 operation({Map, Key, Op}) ->    
