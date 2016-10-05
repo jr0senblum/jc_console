@@ -1,9 +1,10 @@
 import { combineReducers } from 'redux';
-import {summaries, cacheLine} from './summary/reducers';
+import {summaries, cacheLine, view} from './summary/reducers';
 
 const rootReducer = combineReducers({
   summaries,
-  cacheLine
+  cacheLine,
+  view
 });
 
 export default rootReducer;

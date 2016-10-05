@@ -3,29 +3,28 @@
 import React, {PropTypes} from 'react';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
-import {summary as summary, loadCacheLine, clearCache, addRandom} from './actions';
+import {summary as summary, loadCacheLine, clearCache, addRandom, requestClearCache} from './actions';
 import {SSE} from './event-consumer';
 
 import {CacheLine, CacheLineDetail, ActivityIndicator, NodeTable} from './';
+import {Dialog, FlatButton, RaisedButton}  from 'material-ui';
 
-const mapStateToProps = (state) => (
-{
+const mapStateToProps = (state) => ({
   summaries: state.summaries,
-  cacheLine: state.cacheLine
-}
-);
+  cacheLine: state.cacheLine,
+  clearCache: state.view.clearCache
+});
 
-const mapDispatchToProps = (dispatch) => (
-{
+const mapDispatchToProps = (dispatch) => ({
   actions: bindActionCreators({
-      summaries: summary,
-      loadCacheLine,
-      clearCache,
-      addRandom
-    },
-    dispatch)
-}
-);
+    summaries: summary,
+    loadCacheLine,
+    clearCache,
+    addRandom,
+    requestClearCache
+  },
+  dispatch)
+});
 
 @connect(mapStateToProps, mapDispatchToProps)
 export class Summary extends React.Component {
@@ -56,7 +55,9 @@ export class Summary extends React.Component {
   }
 
   handleClearCache(e) {
-    this.props.actions.clearCache();
+    this.props.actions.clearCache()
+      .then(() => this.props.actions.summaries())
+      .then(() => this.props.actions.requestClearCache(false));
   }
 
   handleAddRandom(e) {
@@ -174,15 +175,15 @@ export class Summary extends React.Component {
     };
   }
 
-  /*
-
-   */
-
-
   render() {
-    const {summary,
-           summary: {per_node_sizes}} = this.props.summaries;
-    const {cacheLine} = this.props.cacheLine;
+    const {
+      summary,
+      summary: {per_node_sizes},
+    } = this.props.summaries;
+
+    const {clearCache} = this.props;
+    const {requestClearCache} = this.props.actions;
+    const {cacheLine} = this.props;
 
     return (
       <div>
@@ -212,19 +213,41 @@ export class Summary extends React.Component {
         <div>
           { JSON.stringify(this.state.sse) }
         </div>
+
         <div>
-          <button onClick={this.handleClearCache}>Clear Cache</button>
+          <button onClick={() => requestClearCache(true)}>Clear Cache</button>
           <button onClick={this.handleAddRandom}>Add Random</button>
         </div>
+
+        <Dialog
+          title="Clear Cache?"
+          actions={[
+             <FlatButton
+              label="Cancel"
+              primary={true}
+              onClick={() => requestClearCache(false)}
+             />,
+             <FlatButton
+              label="Submit"
+              primary={true}
+              keyboardFocused={true}
+              onClick={this.handleClearCache}
+              />
+          ]}
+          modal={false}
+          open={clearCache}
+          onRequestClose={() => {}}>
+          Are you sure want to clear the cache?
+        </Dialog>
+
 
         <div>
           {Object.entries(per_node_sizes).map(kv =>
             <div key={kv[0]}>
               <strong>{kv[0]}</strong>
-              <NodeTable tables={kv[1]['tables']} />
+              <NodeTable tables={kv[1]['tables']}/>
             </div>
           )}
-
 
         </div>
       </div>

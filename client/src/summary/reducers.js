@@ -1,4 +1,4 @@
-import {SUMMARY_LOADED, CACHE_LINE_LOADED} from './action-types';
+import {SUMMARY_LOADED, CACHE_LINE_LOADED, REQUEST_CLEAR_CACHE} from './action-types';
 
 const initialState = {
   summary: {
@@ -31,4 +31,23 @@ export const cacheLine = (state = initialCacheState, action) => {
         cacheLine: {...action.payload}};
   }
   return state;
+};
+
+
+const initialViewState = {
+  clearCache: false
+};
+
+export const view = (state = initialViewState, action) => {
+
+  switch (action.type) {
+    case REQUEST_CLEAR_CACHE:
+      return {
+        ...state,
+        clearCache: action.payload
+      };
+    default:
+      return state;
+  }
+
 };

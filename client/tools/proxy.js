@@ -37,15 +37,8 @@ function applicationProxyMiddleware(req, res, next) {
   let apiProxyPath = new RegExp('^\/(api\/)+\\b\/?', 'i');
 
   if (req.url.match(apiProxyPath)) {
-
-    // let finalUrl = req.url.replace(/^\/(api\/)+/i, '/');
-
     debug(chalk.white('Using Proxy'), 'for', chalk.cyan(req.url), 'as', chalk.cyan(req.url));
-
-    // req.url = finalUrl;
-
     proxy.server.web(req, res);
-
     return;
   }
 

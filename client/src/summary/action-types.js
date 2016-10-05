@@ -6,4 +6,5 @@ export const CLEAR_CACHE       = 'CACHE_LINE_LOADED';
 export const CACHE_CLEARED     = 'CACHE_CLEARED';
 export const ADD_RANDOM        = 'ADD_RANDOM';
 export const RANDOM_ADDED      = 'RANDOM_ADDED';
+export const REQUEST_CLEAR_CACHE  = 'REQUEST_CLEAR_CACHE';
 
