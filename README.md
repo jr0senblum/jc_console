@@ -2,22 +2,25 @@ jc_console
 ====
 
 ##Web based monitoring tool for j_cache
-jc_console provides a browser-based monitoring tool allowing a user to understand the basic
-health of j_cache as well as see certain details about the tables and cache-lines (bucekts)
-that make up a running j_cache cluster.
+jc_console provides a browser-based monitoring tool allowing a user to understand
+the basic health of a j_cache cluster as well as see certain details about the 
+tables and cache-lines (bucekts) that make up a running j_cache cluster.
 
-Jc_console is a dependecny of j_cache and is distributed with j_cache. Having said that,
+Jc_console is a dependency of j_cache and is distributed with j_cache. Having said that,
 jc_console will not be started unless a particular j_cache node is configured to start
 jc_console via its configuration file, sys.config (see the configuration section below).
 
 
 ### Front-End / Back-End
 The front-end is a React / Redux appliction and is described in its own README in the client
-subdirectory. The back-end is an Erlang, OTP-compliant application and is further described in this README.
+subdirectory. The back-end is an Erlang, OTP-compliant application and is further described 
+in this README.
 
 
 ### Server file structure
-jc_console is a standard OTP application and follows the OTP directory convention. Howver, there is a single exception in that there is an additional client directory which contains the front-end React application.
+jc_console is a standard OTP application and follows the OTP directory convention. 
+However, there is a single exception in that there is an additional client 
+directory which contains the front-end React application.
 
 ```
 .
@@ -66,25 +69,25 @@ selected map.
     
 * Modify logging if desired in sys.config file
    	  
-* Generating a release should not be necessary since it jc_console will be built by j_cache as it is a dependecy of j_cache. 
-  But, if you do need to build the release - it will be located in jc_console/rel/jc_console
+* Generating a release should not be necessary since it will be built by j_cache
+as it is a dependecy of j_cache. But, if you do need to build the release - it 
+will be located in jc_console/rel/jc_console
 
         [root@db01] cd rel
 	[root@db01] ../rebar generate
 
 
-
-###Features
+### Features
 Provides JSON endpoints indicating
 
  * Summary information regarding the health of j_cache
  * Detailed informatin regardng a specific cache_line
  * SSE indicating evicts and writes for a given cache line
+ * Ability to clear the cache
 
 
 
-
-###Configuration
+### Configuration
 For j_cache nodes that want to offer jc_console, the j_cache sys.config file 
 needs two additional lines in the jc stanza
 
@@ -92,7 +95,7 @@ needs two additional lines in the jc stanza
 	 [
 	  ...snip ...
 	  %% To enable the web-based console, jc_console set to true.
-	  {console, false},
+	  {console, true},
 	  {port, 8080},
 	  ...snip...
 	 ]

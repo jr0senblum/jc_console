@@ -1,7 +1,7 @@
 {application, jc_console,
  [
-  {description, "Web front-end console to jcache"},
-  {vsn, "1.0.0"},
+  {description, "Browser-based console to jcache"},
+  {vsn, git},
   {registered, []},
   {applications, [
                   kernel,

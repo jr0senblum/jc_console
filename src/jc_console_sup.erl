@@ -2,7 +2,7 @@
 %%% @author Jim Rosenblum
 %%% @copyright (C) 2011-2015, Jim Rosenblum
 %%% @doc Top-level supervisor for the jc_console application. 
-%%% 
+%%% Doesn't really do anything except make this a OTP compliant application.
 %%% @version {@version}
 %%% @end
 %%% Created : 21 September 2016 by Jim Rosenblum
