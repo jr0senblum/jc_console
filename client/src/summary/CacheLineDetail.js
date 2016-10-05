@@ -1,6 +1,6 @@
 import React, {PropTypes} from 'react';
 
-export const CacheLineDetail = ({name = "", indexes = [], records = 0, sequence_no = 0, ttl = 0}) => (
+export const CacheLineDetail = ({name = "", indexes = [], records = 0, sequence_no = null, ttl = null}) => (
   <div>
     <div>Records: {records}</div>
     <div>Sequence Number: {!sequence_no ? 0 : sequence_no}</div>
@@ -15,7 +15,7 @@ CacheLineDetail.propTypes = {
   name: PropTypes.string.isRequired,
   indexes: PropTypes.array.isRequired,
   records: PropTypes.number.isRequired,
-  sequence_no: PropTypes.any.isRequired,
-  ttl: PropTypes.any //not sure what this is
+  sequence_no: PropTypes.number,
+  ttl: PropTypes.number //not sure what this is
 };
 

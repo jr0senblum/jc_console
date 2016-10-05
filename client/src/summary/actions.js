@@ -5,11 +5,11 @@ export function summary() {
   return dispatch =>
     axios.get('/api/summary')
       .then(summary => {
-        console.log("Summary: ", summary);
         dispatch({
           type: SUMMARY_LOADED,
           payload: summary.data
-        })});
+        });
+      });
 }
 
 export function loadCacheLine(name, cacheLineURL) {
