@@ -96,7 +96,7 @@ needs two additional lines in the jc stanza
 	  ...snip ...
 	  %% To enable the web-based console, jc_console set to true.
 	  {console, true},
-	  {port, 8080},
+	  {port, 9080},
 	  ...snip...
 	 ]
 	}

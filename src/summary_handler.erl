@@ -2,7 +2,7 @@
 %%% @author Jim Rosenblum
 %%% @copyright (C) 2011 - 2017, Jim Rosenblum
 %%% @doc This is the http, RESTFUL handler used by cowboy to provide summary
-%%% information about the cache to the web-based console.
+%%% information about the cache.
 %%%
 %%% @version {@version}
 %%% @end
@@ -152,9 +152,12 @@ events(MapName) ->
     <<"/api/eventsource/map/", B/binary>>.
 
 
+% Maps are mentioned when PUTting items, creating indexs (possibly a-priori) or 
+% indicating a map-level TTL.
 all_mentioned_maps() ->
-    Maps = lists:foldl(fun({M, _}, Acc) -> sets:add_element(M, Acc) end,
-                       sets:from_list(jc:maps()),
-                       jc_eviction_manager:get_max_ttls()), 
-    sets:to_list(Maps).
+    Maps = [M || M <- jc:maps()],
+    Indexed = [M || {{M,_},_} <- jc_store:indexes()],
+    TTLs = [M || {M, _} <- jc_eviction_manager:get_max_ttls()],
+    sets:to_list(sets:from_list(lists:flatten([Maps, Indexed, TTLs]))).
+
                         
