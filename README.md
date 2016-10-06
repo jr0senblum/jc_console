@@ -18,9 +18,9 @@ in this README.
 
 
 ### Server file structure
-jc_console is a standard OTP application and follows the OTP directory convention. 
-However, there is a single exception in that there is an additional client 
-directory which contains the front-end React application.
+jc_console is a standard OTP application and follows the OTP directory convention with
+one exception - there is an additional client directory which contains the front-end 
+React application.
 
 ```
 .
