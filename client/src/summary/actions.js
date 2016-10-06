@@ -1,15 +1,15 @@
 import axios from 'axios';
-import {SUMMARY_LOADED, CACHE_LINE_LOADED, CACHE_CLEARED, RANDOM_ADDED} from './action-types';
+import {SUMMARY_LOADED, CACHE_LINE_LOADED, CACHE_CLEARED, RANDOM_ADDED, REQUEST_CLEAR_CACHE} from './action-types';
 
 export function summary() {
   return dispatch =>
     axios.get('/api/summary')
       .then(summary => {
-        console.log("Summary: ", summary);
         dispatch({
           type: SUMMARY_LOADED,
           payload: summary.data
-        })});
+        });
+      });
 }
 
 export function loadCacheLine(name, cacheLineURL) {
@@ -24,6 +24,15 @@ export function loadCacheLine(name, cacheLineURL) {
           }
         }));
 }
+
+export function requestClearCache(bool) {
+  return {
+    type: REQUEST_CLEAR_CACHE,
+    payload: bool
+  };
+}
+
+
 
 export function clearCache() {
   return dispatch =>
