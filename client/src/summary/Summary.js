@@ -48,10 +48,13 @@ export class Summary extends React.Component {
     this.sse.stopAll();
   }
 
-  handleCacheLineSelected(cache) {
-    this.props.actions.loadCacheLine("", cache.rel);
-    this.sse.stopAll();
-    this.sse.start(cache.sse, (data) => this.setState({sse: data}));
+  handleCacheLineSelected(e) {
+    const url = e.target.value;
+    this.props.actions.loadCacheLine(url);
+  }
+
+  componentWillReceiveProps(props) {
+    console.log("Props changed to: ", props);
   }
 
   handleClearCache(e) {
@@ -183,17 +186,21 @@ export class Summary extends React.Component {
 
     const {clearCache} = this.props;
     const {requestClearCache} = this.props.actions;
-    const {cacheLine} = this.props;
+    const {cacheLine} = this.props.cacheLine;
+
+    console.log("Cache line is: ", cacheLine);
 
     return (
       <div>
 
-        {
-          summary.cache_lines.map(cl =>
-            <div key={cl.cache}>
-              <CacheLine cache={cl.cache} rel={cl.ref} sse={cl.sse} onRelClicked={this.handleCacheLineSelected}/>
-            </div>)
-        }
+        <select onChange={this.handleCacheLineSelected}>
+          {
+            summary.cache_lines.map(cl => {
+                return (<option key={cl.cache} value={cl.ref}>{cl.cache}</option>)
+              }
+            )
+          };
+        </select>
 
         {
           cacheLine && <CacheLineDetail name={cacheLine.name}

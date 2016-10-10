@@ -12,7 +12,7 @@ export function summary() {
       });
 }
 
-export function loadCacheLine(name, cacheLineURL) {
+export function loadCacheLine(cacheLineURL) {
   return dispatch =>
     axios.get(cacheLineURL)
       .then(data =>
